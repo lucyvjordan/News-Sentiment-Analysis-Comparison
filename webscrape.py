@@ -2,16 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 
 import analysis
+from displaydata import Display
 
 websites = {"BBC": "www.bbc.co.uk/news", 
             "The Guardian": "www.theguardian.com/uk",
-            "Sky News": "news.sky.com"}
+            "Sky News": "news.sky.com",
+            "The Telegraph": "telegraph.co.uk/news/",
+            "Mail Online": "dailymail.co.uk/news/index.html"}
 
 
 def scrape_headlines(websites):
 
     allScores = []
-    aggregateScores = []
+    aggregateScores = {}
 
     for x in websites:
 
@@ -43,6 +46,7 @@ def scrape_headlines(websites):
             container = soup.find("div", id="container-headlines")
 
             headlines = []
+
             for headline in container.find_all('a'):
                 try: 
                     headlines.append(headline['aria-label'])
@@ -55,19 +59,40 @@ def scrape_headlines(websites):
             container = soup.find("div", class_ = "sdc-site-tiles__group")
 
             headlines = []
+
             for headline in container.select('span[class="sdc-site-tile__headline-text"]'):
                 headlines.append(headline.get_text())
 
+        
+        # THE TELEGRAPH
+        elif x == "The Telegraph":
+            container  = soup.find("ul", class_ = "article-list__list")
 
+            headlines = []
+
+            for headline in container.find_all('span', attrs = {'class': ''}):
+                # finds all span content with no class (as this contains text of headline - other span content with a class may include 'live', additional information etc)
+                headlines.append(headline.get_text())
+
+        elif x == "Mail Online":
+            container = soup.find("div", attrs= {'data-track-module': 'sm-403^automated_tabbed_headlines'})
+
+            headlines = []
+
+            for headline in container.find_all('li', attrs= {'class': ''}):
+                headlines.append(headline.get_text().strip(" \n"))
+                # strips text because it usually contains lots of empty space and new lines
+
+        # ANALYSIS
         headlineAnalysis = analysis.Analyse(headlines)
         # uses Analyse() function from analysis.py to analyse all of the headlines
 
-        allScores.append(headlineAnalysis[0])
+        #allScores.append(headlineAnalysis[0])
         # contains positive, neutral, negative and compound
-        aggregateScores.append(headlineAnalysis[1])
+        aggregateScores[x] = headlineAnalysis
         # is the average of all the compound scores of the headlines
 
-    print(allScores, aggregateScores)
+    Display(allScores, aggregateScores)
       
 scrape_headlines(websites)
 
