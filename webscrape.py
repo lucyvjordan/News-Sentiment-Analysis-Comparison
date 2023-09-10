@@ -7,9 +7,12 @@ from displaydata import Display
 websites = {"BBC": "www.bbc.co.uk/news", 
             "The Guardian": "www.theguardian.com/uk",
             "Sky News": "news.sky.com",
-            "The Telegraph": "telegraph.co.uk/news/",
-            "Mail Online": "dailymail.co.uk/news/index.html"}
+            "The Telegraph": "www.telegraph.co.uk/news/",
+            "Mail Online": "www.dailymail.co.uk/news/index.html",
+            "Independent": "www.independent.co.uk/",
+            "Positive.News": "www.positive.news/"}
 
+websites = {"Positive.News": "www.positive.news/"}
 
 def scrape_headlines(websites):
 
@@ -20,21 +23,24 @@ def scrape_headlines(websites):
 
         websiteURL = "https://" + websites[x]
         # creates URL for web request using values in dictionary
-
-        website = requests.get(websiteURL)
-        # connects to website
+        try:
+            website = requests.get(websiteURL, timeout = 1)
+            # connects to website, returns exception if not connected within 1 second
+        except:
+            print(f"Cannot connect to: {x}")
+            # prints statement to console displaying which website hasnt been connected to
 
         soup = BeautifulSoup(website.content, "html.parser")
         # BeautifulSoup module makes extracting data from website easier
 
+        headlines = []
+
         # news websites are separated because the way to direct the soup to the headlines differs between websites
         # BBC
         if x == "BBC":
-            
             container = soup.find("div", id="news-top-stories-container")
             # identifies div where main stories are
 
-            headlines = []
             for headline in container.select('h3[class*="promo-heading__title"]'):
                 if headline.get_text() not in headlines:
                     # in case headlines are repeated
@@ -44,8 +50,6 @@ def scrape_headlines(websites):
         # THE GUARDIAN
         elif x == "The Guardian":
             container = soup.find("div", id="container-headlines")
-
-            headlines = []
 
             for headline in container.find_all('a'):
                 try: 
@@ -58,8 +62,6 @@ def scrape_headlines(websites):
         elif x == "Sky News":
             container = soup.find("div", class_ = "sdc-site-tiles__group")
 
-            headlines = []
-
             for headline in container.select('span[class="sdc-site-tile__headline-text"]'):
                 headlines.append(headline.get_text())
 
@@ -68,20 +70,41 @@ def scrape_headlines(websites):
         elif x == "The Telegraph":
             container  = soup.find("ul", class_ = "article-list__list")
 
-            headlines = []
-
             for headline in container.find_all('span', attrs = {'class': ''}):
                 # finds all span content with no class (as this contains text of headline - other span content with a class may include 'live', additional information etc)
                 headlines.append(headline.get_text())
 
+        # MAIL ONLINE
         elif x == "Mail Online":
             container = soup.find("div", attrs= {'data-track-module': 'sm-403^automated_tabbed_headlines'})
-
-            headlines = []
 
             for headline in container.find_all('li', attrs= {'class': ''}):
                 headlines.append(headline.get_text().strip(" \n"))
                 # strips text because it usually contains lots of empty space and new lines
+
+        # INDEPENDENT
+        elif x == "Independent":
+
+            divisionTypes = ["HeroPlus3Articles", "ArticleX8PlusDMPU"]
+
+            for division in divisionTypes:
+
+                container = soup.find('div', attrs= {'data-type': division})
+
+                for headline in container.find_all('a', attrs = {'class': 'title'}):
+                    headlines.append(headline.get_text())
+        
+        # POSITIVE.NEWS
+        elif x == "Positive.News":
+            
+            divisionTypes = ["latest__articles cols--3--2--2", "featured__articles cols--3--3--1"]
+            
+            for division in divisionTypes:
+
+                container = soup.find('div', attrs= {'class': division})
+
+                for headline in container.find_all('a', attrs = {'class': 'card__title h3'}):
+                    headlines.append(headline.get_text())
 
         # ANALYSIS
         headlineAnalysis = analysis.Analyse(headlines)
@@ -92,7 +115,7 @@ def scrape_headlines(websites):
         aggregateScores[x] = headlineAnalysis
         # is the average of all the compound scores of the headlines
 
-    Display(allScores, aggregateScores)
+    Display(aggregateScores)
       
 scrape_headlines(websites)
 
