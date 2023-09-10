@@ -10,9 +10,16 @@ websites = {"BBC": "www.bbc.co.uk/news",
             "The Telegraph": "www.telegraph.co.uk/news/",
             "Mail Online": "www.dailymail.co.uk/news/index.html",
             "Independent": "www.independent.co.uk/",
-            "Positive.News": "www.positive.news/"}
+            "Positive.News": "www.positive.news/",
+            "The Sunday Times": "www.thetimes.co.uk/"}
 
-websites = {"Positive.News": "www.positive.news/"}
+''' to do:
+https://metro.co.uk/news/
+https://www.thesun.co.uk/news/uknews/
+https://thegoodnewshub.com/
+https://www.mirror.co.uk/news/uk-news/
+https://www.msn.com/en-gb/news/uk
+'''
 
 def scrape_headlines(websites):
 
@@ -96,7 +103,7 @@ def scrape_headlines(websites):
         
         # POSITIVE.NEWS
         elif x == "Positive.News":
-            
+
             divisionTypes = ["latest__articles cols--3--2--2", "featured__articles cols--3--3--1"]
             
             for division in divisionTypes:
@@ -105,6 +112,15 @@ def scrape_headlines(websites):
 
                 for headline in container.find_all('a', attrs = {'class': 'card__title h3'}):
                     headlines.append(headline.get_text())
+
+        # THE SUNDAY TIMES
+        elif x == "The Sunday Times":
+
+            container = soup.find('div', attrs = {'class': 'SliceCollection'})
+            
+            for headline in container.select('h3[class*="Item-headline"]'):
+                headlines.append(headline.find('a').get_text())
+
 
         # ANALYSIS
         headlineAnalysis = analysis.Analyse(headlines)
