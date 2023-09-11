@@ -12,13 +12,12 @@ websites = {"BBC": "www.bbc.co.uk/news",
             "Independent": "www.independent.co.uk/",
             "Positive.News": "www.positive.news/",
             "The Sunday Times": "www.thetimes.co.uk/",
-            "Metro": "metro.co.uk/news/uk/"}
-
+            "Metro": "metro.co.uk/news/uk/",
+            "The Sun": "www.thesun.co.uk/news/uknews/",
+            "The Mirror": "www.mirror.co.uk/news/"}
 
 ''' to do:
-https://www.thesun.co.uk/news/uknews/
 https://thegoodnewshub.com/
-https://www.mirror.co.uk/news/uk-news/
 https://www.msn.com/en-gb/news/uk
 '''
 
@@ -133,13 +132,26 @@ def scrape_headlines(websites):
                 container = soup.find('div', attrs= {'class': division})
 
                 for headline in container.find_all('h3'):
-                    print(headline.get_text())
                     headlines.append(headline.get_text())
 
                 for headline in container.find_all('h2'):
-                    print(headline.get_text())
                     headlines.append(headline.get_text())
 
+        # THE SUN
+        elif x == "The Sun":
+
+            container = soup.find('section', attrs = {'class': 'sun-container__home-section'})
+
+            for headline in container.find_all('h3'):
+                headlines.append(headline.get_text())
+
+        # THE MIRROR
+        elif x == "The Mirror":
+
+            container = soup.find('main', attrs= {'class': 'mod-pancakes'})
+
+            for headline in container.find_all('h2'):
+                headlines.append(headline.get_text())
 
         # ANALYSIS
         headlineAnalysis = analysis.Analyse(headlines)
