@@ -14,16 +14,12 @@ websites = {"BBC": "www.bbc.co.uk/news",
             "The Sunday Times": "www.thetimes.co.uk/",
             "Metro": "metro.co.uk/news/uk/",
             "The Sun": "www.thesun.co.uk/news/uknews/",
-            "The Mirror": "www.mirror.co.uk/news/"}
-
-''' to do:
-https://thegoodnewshub.com/
-https://www.msn.com/en-gb/news/uk
-'''
+            "The Mirror": "www.mirror.co.uk/news/",
+            "Digital Spy": "www.digitalspy.com/contenttype/news/",
+            "Express": "www.express.co.uk/news/uk"}
 
 def scrape_headlines(websites):
 
-    allScores = []
     aggregateScores = {}
 
     for x in websites:
@@ -31,11 +27,11 @@ def scrape_headlines(websites):
         websiteURL = "https://" + websites[x]
         # creates URL for web request using values in dictionary
         try:
-            website = requests.get(websiteURL, timeout = 1)
+            website = requests.get(websiteURL, timeout = 0.8)
             # connects to website, returns exception if not connected within 1 second
         except:
             print(f"Cannot connect to: {x}")
-            break
+            continue
             # prints statement to console displaying which website hasnt been connected to
 
         soup = BeautifulSoup(website.content, "html.parser")
@@ -153,12 +149,27 @@ def scrape_headlines(websites):
             for headline in container.find_all('h2'):
                 headlines.append(headline.get_text())
 
+        # DIGITAL SPY
+        elif x == "Digital Spy":
+
+            container = soup.find('main', attrs = {'class': 'site-content'})
+
+            for headline in container.select('div[class*="item-title"]'):
+                headlines.append(headline.get_text())
+
+        # EXPRESS
+        elif x == "Express":
+
+            container = soup.find('div', attrs= {'role': 'main'})
+
+            for headline in container.find_all('h4'):
+                headlines.append(headline.get_text())
+
         # ANALYSIS
         headlineAnalysis = analysis.Analyse(headlines)
         # uses Analyse() function from analysis.py to analyse all of the headlines
-
-        #allScores.append(headlineAnalysis[0])
         # contains positive, neutral, negative and compound
+
         aggregateScores[x] = headlineAnalysis
         # is the average of all the compound scores of the headlines
 
