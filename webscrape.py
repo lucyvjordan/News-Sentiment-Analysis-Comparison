@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from collections import OrderedDict
 
 import analysis
 from displaydata import Display
@@ -173,6 +174,10 @@ def scrape_headlines(websites):
         aggregateScores[x] = headlineAnalysis
         # is the average of all the compound scores of the headlines
 
+
+    aggregateScores = OrderedDict(sorted(aggregateScores.items(), key = lambda k: k[1]['compound'], reverse = True))
+    # order websites according to compound score (from highest to lowest)
+    
     Display(aggregateScores)
       
 scrape_headlines(websites)
