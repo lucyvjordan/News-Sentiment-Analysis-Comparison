@@ -11,10 +11,11 @@ websites = {"BBC": "www.bbc.co.uk/news",
             "Mail Online": "www.dailymail.co.uk/news/index.html",
             "Independent": "www.independent.co.uk/",
             "Positive.News": "www.positive.news/",
-            "The Sunday Times": "www.thetimes.co.uk/"}
+            "The Sunday Times": "www.thetimes.co.uk/",
+            "Metro": "metro.co.uk/news/uk/"}
+
 
 ''' to do:
-https://metro.co.uk/news/
 https://www.thesun.co.uk/news/uknews/
 https://thegoodnewshub.com/
 https://www.mirror.co.uk/news/uk-news/
@@ -35,6 +36,7 @@ def scrape_headlines(websites):
             # connects to website, returns exception if not connected within 1 second
         except:
             print(f"Cannot connect to: {x}")
+            break
             # prints statement to console displaying which website hasnt been connected to
 
         soup = BeautifulSoup(website.content, "html.parser")
@@ -104,9 +106,9 @@ def scrape_headlines(websites):
         # POSITIVE.NEWS
         elif x == "Positive.News":
 
-            divisionTypes = ["latest__articles cols--3--2--2", "featured__articles cols--3--3--1"]
+            divisionClasses = ["latest__articles cols--3--2--2", "featured__articles cols--3--3--1"]
             
-            for division in divisionTypes:
+            for division in divisionClasses:
 
                 container = soup.find('div', attrs= {'class': division})
 
@@ -120,6 +122,23 @@ def scrape_headlines(websites):
             
             for headline in container.select('h3[class*="Item-headline"]'):
                 headlines.append(headline.find('a').get_text())
+
+        # METRO
+        elif x == "Metro":
+
+            divisionIDs = ["trending-module category colour-neutral", "widget-area channel-middle channel-area sidebar clearfix"]
+            
+            for division in divisionIDs:
+
+                container = soup.find('div', attrs= {'class': division})
+
+                for headline in container.find_all('h3'):
+                    print(headline.get_text())
+                    headlines.append(headline.get_text())
+
+                for headline in container.find_all('h2'):
+                    print(headline.get_text())
+                    headlines.append(headline.get_text())
 
 
         # ANALYSIS
