@@ -28,7 +28,7 @@ class Display():
         self.rax.clear()
         # clear all axes (so when toggle it doesnt repeatedly draw over previous elements)
 
-        self.fig.patch.set_facecolor('#f2f2f2')
+        self.fig.patch.set_facecolor('#ecf2f9')
         self.ax.set_facecolor('#f2f2f2')
         # changing background colour of inner and outer area of figure
         
@@ -37,9 +37,9 @@ class Display():
         # creates grid lines behind bar chart
 
         self.ax.set_ylabel("Sentiment", fontsize = 14)
-        self.ax.set_title("Website Analysis", loc = "left", fontsize = 20, pad = 20)
-
-        toggleButton = Button(self.rax, "Show Breakdown of Scores")
+        self.ax.set_title("News Sentiment", loc = "left", fontsize = 25, pad = 20)
+        
+        toggleButton = Button(self.rax, "Show Breakdown of Scores", color = 'white')
         toggleButton.on_clicked(self.Toggle)
         # button to toggle graph, directs program to self.Toggle() function when clicked
 
