@@ -178,7 +178,9 @@ def scrape_headlines(websites):
     aggregateScores = OrderedDict(sorted(aggregateScores.items(), key = lambda k: k[1]['compound'], reverse = True))
     # order websites according to compound score (from highest to lowest)
     
-    Display(aggregateScores)
+    chart = Display(aggregateScores)
+    chart.Update()
+
       
 scrape_headlines(websites)
 

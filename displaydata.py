@@ -4,75 +4,87 @@ from matplotlib.widgets import Button
 import numpy as np
 
 
-def DisplayAggregates(aggregateScores):
+class Display():
+    def __init__(self, aggregateScores):
 
-    websites = list(aggregateScores.keys())
-    # get a list of all the websites for x axis
-    avgScores = list(x['compound'] for x in aggregateScores.values())
-    # get a list of all the average scores
-    
-    fig, ax = plt.subplots()
+        self.currentToggle = False
 
-    fig.patch.set_facecolor('#f2f2f2')
-    ax.set_facecolor('#f2f2f2')
-    # changing background colour of inner and outer area of figure
+        self.websites = list(aggregateScores.keys())
+        # get a list of all the websites for x axism 
+        self.avgScores = np.array(list(x['compound'] for x in aggregateScores.values()))
+        # get a list of all the average scores
+        self.negScores = np.array(list(x['neg'] * x['compound'] for x in aggregateScores.values()))
+        self.neuScores = np.array(list(x['neu'] * x['compound'] for x in aggregateScores.values()))
+        self.posScores = np.array(list(x['pos'] * x['compound'] for x in aggregateScores.values()))
+        # get lists of all 3 different sentiment scores, in proportion to overall compound sentiment
+
+        self.fig, self.ax = plt.subplots()
         
-    ax.set_axisbelow(True)
-    ax.yaxis.grid()
-    # creates grid lines
+        self.rax = plt.axes([0.63, 0.88, 0.35, 0.1])
+        # axes of toggle button
 
-    cmap = mpl.cm.get_cmap('RdYlGn')
-    norm = plt.Normalize(min(avgScores), max(avgScores))
-    bar_colors = cmap(norm(avgScores))
+    def Update(self):
+        self.ax.clear()
+        self.rax.clear()
+        # clear all axes (so when toggle it doesnt repeatedly draw over previous elements)
 
-    ax.bar(websites, avgScores, color = bar_colors, edgecolor = "black", linewidth = 0.3)
-    # bar chart of websites plotted against average scores
+        self.fig.patch.set_facecolor('#f2f2f2')
+        self.ax.set_facecolor('#f2f2f2')
+        # changing background colour of inner and outer area of figure
+        
+        self.ax.set_axisbelow(True)
+        self.ax.yaxis.grid()
+        # creates grid lines behind bar chart
 
-    ax.set_xticklabels(websites, rotation = 'vertical')
-    # sets and rotates x labels so they do not overlap
+        self.ax.set_ylabel("Sentiment", fontsize = 14)
+        self.ax.set_title("Website Analysis", loc = "left", fontsize = 20, pad = 20)
 
-    ax.set_ylabel("Sentiment", fontsize = 14)
-    ax.set_title("Website Analysis", loc = "left", fontsize = 20, pad = 20)
+        toggleButton = Button(self.rax, "Show Breakdown of Scores")
+        toggleButton.on_clicked(self.Toggle)
+        # button to toggle graph, directs program to self.Toggle() function when clicked
 
-    plt.tight_layout()
-    plt.show()
+        if self.currentToggle == False:
+            self.DisplayAggregates()
+        else:
+            self.DisplayAll()
+
+        self.ax.set_xticks(self.ax.get_xticks())
+        self.ax.set_xticklabels(self.websites, rotation = 'vertical')
+        # sets and rotates x labels so they do not overlap   
+            
+        plt.tight_layout()
+        # fits the chart onto screen
+        plt.show()
 
 
+    def DisplayAggregates(self):
 
-def DisplayAll(aggregateScores):
+        cmap = mpl.cm.get_cmap('RdYlGn')
+        # retrieving colour map of Red-Yellow-Green
+        norm = plt.Normalize(min(self.avgScores), max(self.avgScores))
+        # scales data to a range of 0 - 1
+        bar_colors = cmap(norm(self.avgScores))
+        # creates list of colours for each bar of bar chart
+
+        self.ax.bar(self.websites, self.avgScores, color = bar_colors, edgecolor = "black", linewidth = 0.3)
+        # bar chart of websites plotted against average scores
+
+
+    def DisplayAll(self):
     
-    websites = list(aggregateScores.keys())
-    # get a list of all the websites for x axis
-    avgScores = np.array(list(x['compound'] for x in aggregateScores.values()))
-    # get a list of all the average scores
-    negScores = np.array(list(x['neg'] * x['compound'] for x in aggregateScores.values()))
-    neuScores = np.array(list(x['neu'] * x['compound'] for x in aggregateScores.values()))
-    posScores = np.array(list(x['pos'] * x['compound'] for x in aggregateScores.values()))
-    # get lists of all 3 different sentiment scores, in proportion to overall compound sentiment
+        self.ax.bar(self.websites, self.negScores, color = "#ff4d4d", edgecolor = "black", linewidth = 0.3)
+        self.ax.bar(self.websites, self.neuScores, bottom = self.negScores, color = "#ffffcc", edgecolor = "black", linewidth = 0.3)
+        self.ax.bar(self.websites, self.posScores, bottom = self.negScores + self.neuScores, color = "#b3ffcc", edgecolor = "black", linewidth = 0.3)
+        # bar chart of websites plotted against stacked sentiment scores
 
-    fig, ax = plt.subplots()
+        self.ax.legend(["Negative", "Neutral", "Positive"], loc = "lower left")
+        # a key for the colours of the bars
 
-    fig.patch.set_facecolor('#f2f2f2')
-    ax.set_facecolor('#f2f2f2')
-    # changing background colour of inner and outer area of figure
-    
-    ax.set_axisbelow(True)
-    ax.yaxis.grid()
-    # creates grid lines
 
-    ax.bar(websites, negScores, color = "#ff4d4d", edgecolor = "black", linewidth = 0.3)
-    ax.bar(websites, neuScores, bottom = negScores, color = "#ffffcc", edgecolor = "black", linewidth = 0.3)
-    ax.bar(websites, posScores, bottom = negScores + neuScores, color = "#b3ffcc", edgecolor = "black", linewidth = 0.3)
-    # bar chart of websites plotted against stacked sentiment scores
+    def Toggle(self, event):
 
-    ax.legend(["Negative", "Neutral", "Positive"])
-    # a key for colours of bars
+        self.currentToggle = not self.currentToggle
+        # sets to True if False, and vice versa
 
-    ax.set_xticklabels(websites, rotation = 'vertical')
-    # sets and rotates x labels so they do not overlap
+        self.Update()
 
-    ax.set_ylabel("Sentiment", fontsize = 14)
-    ax.set_title("Website Analysis", loc = "left", fontsize = 20, pad = 10)
-    
-    plt.tight_layout()
-    plt.show()
