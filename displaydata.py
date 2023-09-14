@@ -31,7 +31,7 @@ class Display():
         self.fig.patch.set_facecolor('#ecf2f9')
         self.ax.set_facecolor('#f2f2f2')
         # changing background colour of inner and outer area of figure
-        
+
         self.ax.set_axisbelow(True)
         self.ax.yaxis.grid()
         # creates grid lines behind bar chart
@@ -39,7 +39,7 @@ class Display():
         self.ax.set_ylabel("Sentiment", fontsize = 14)
         self.ax.set_title("News Sentiment", loc = "left", fontsize = 25, pad = 20)
         
-        toggleButton = Button(self.rax, "Show Breakdown of Scores", color = 'white')
+        toggleButton = Button(self.rax, "Show Breakdown of Scores", color = 'white', hovercolor = '#ffffe6')
         toggleButton.on_clicked(self.Toggle)
         # button to toggle graph, directs program to self.Toggle() function when clicked
 
@@ -71,7 +71,7 @@ class Display():
 
 
     def DisplayAll(self):
-    
+        
         self.ax.bar(self.websites, self.negScores, color = "#ff4d4d", edgecolor = "black", linewidth = 0.3)
         self.ax.bar(self.websites, self.neuScores, bottom = self.negScores, color = "#ffffcc", edgecolor = "black", linewidth = 0.3)
         self.ax.bar(self.websites, self.posScores, bottom = self.negScores + self.neuScores, color = "#b3ffcc", edgecolor = "black", linewidth = 0.3)
